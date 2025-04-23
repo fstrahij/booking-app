@@ -14,7 +14,7 @@ export class DiscoverPage implements OnInit {
   constructor(private placeService: PlacesService) { }
 
   ngOnInit() {
-    this.loadedPlaces = this.placeService.GetPlaces();
+    this.loadedPlaces = this.placeService.places;
   }
 
 }
