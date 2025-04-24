@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {NavController} from "@ionic/angular";
+
+import {ModalController, NavController} from "@ionic/angular";
 
 import {PlacesService} from "../../../../services/places/places.service";
 import {Place} from "../../../../models/place.model";
+import {CreateBookingComponent} from "../../../../components/create-booking/create-booking.component";
 
 @Component({
   selector: 'app-place-details',
@@ -16,7 +18,8 @@ export class PlaceDetailsPage implements OnInit {
 
   constructor(private route: ActivatedRoute,
               private navCtrl: NavController,
-              private placesService: PlacesService
+              private placesService: PlacesService,
+              private modalCtrl: ModalController,
   ) { }
 
   ngOnInit() {
@@ -28,7 +31,21 @@ export class PlaceDetailsPage implements OnInit {
       this.place = this.placesService.getPlace(paramMap.get('placeId'));
     });
   }
-  onBook(){
-    this.navCtrl.navigateBack('places/tabs/discover');
+
+  onBookPlace(){
+    this.modalCtrl
+        .create({
+          component: CreateBookingComponent,
+          componentProps: { place: this.place }
+        })
+        .then(modal => {
+          modal.present();
+
+          return modal.onDidDismiss()
+        })
+        .then(result => {
+          console.log(result.data, result.role);
+        });
   }
+
 }
