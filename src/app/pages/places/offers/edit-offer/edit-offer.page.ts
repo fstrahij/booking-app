@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import {NavController} from "@ionic/angular";
 import {ActivatedRoute} from "@angular/router";
-import {PlacesService} from "../../places.service";
-import {Place} from "../../place.model";
+import {NavController} from "@ionic/angular";
+import {PlacesService} from "../../../../services/places/places.service";
+import {Place} from "../../../../models/place.model";
 
 @Component({
-  selector: 'app-place-details',
-  templateUrl: './place-details.page.html',
-  styleUrls: ['./place-details.page.scss'],
+  selector: 'app-edit-offer',
+  templateUrl: './edit-offer.page.html',
+  styleUrls: ['./edit-offer.page.scss'],
   standalone: false
 })
-export class PlaceDetailsPage implements OnInit {
+export class EditOfferPage implements OnInit {
   place: Place;
 
   constructor(private route: ActivatedRoute,
@@ -21,14 +21,11 @@ export class PlaceDetailsPage implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap =>{
       if(!paramMap.has('placeId')){
-        this.navCtrl.navigateBack('places/tabs/discover');
+        this.navCtrl.navigateBack('places/tabs/offers');
         return;
       }
-
       this.place = this.placesService.getPlace(paramMap.get('placeId'));
     });
   }
-  onBook(){
-    this.navCtrl.navigateBack('places/tabs/discover');
-  }
+
 }

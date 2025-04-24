@@ -45,7 +45,7 @@ const routes: Routes = [
           },
             {
                 path: '',
-                redirectTo: '/places/tabs/discover',
+                redirectTo: '/pages/places/tabs/discover',
                 pathMatch: 'full'
             }
         ]

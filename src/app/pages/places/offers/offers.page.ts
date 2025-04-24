@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {PlacesService} from "../places.service";
-import {Place} from "../place.model";
+import {PlacesService} from "../../../services/places/places.service";
+import {Place} from "../../../models/place.model";
 
 @Component({
   selector: 'app-offers',
