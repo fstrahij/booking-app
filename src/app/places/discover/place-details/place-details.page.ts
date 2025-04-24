@@ -11,7 +11,6 @@ import {Place} from "../../place.model";
   standalone: false
 })
 export class PlaceDetailsPage implements OnInit {
-  // @ts-ignore
   place: Place;
 
   constructor(private route: ActivatedRoute,
@@ -25,7 +24,7 @@ export class PlaceDetailsPage implements OnInit {
         this.navCtrl.navigateBack('places/tabs/discover');
         return;
       }
-      // @ts-ignore
+
       this.place = this.placesService.getPlace(paramMap.get('placeId'));
     });
   }
