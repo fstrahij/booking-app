@@ -4,13 +4,95 @@
           <ion-back-button defaultHref="/places/tabs/offers"></ion-back-button>
       </ion-buttons>
     <ion-title>new-offer</ion-title>
+      <ion-buttons slot="end">
+          <ion-button
+                  (click)="onCreateOffer()"
+                  [disabled]="!form.valid"
+          >
+              <ion-icon
+                      name="checkmark"
+                      slot="icon-only"
+              ></ion-icon>
+          </ion-button>
+      </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">new-offer</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <form [formGroup]="form">
+      <ion-grid>
+          <ion-row>
+              <ion-col size-sm="6" offset-sm="3">
+                  <ion-item lines="none">
+                      <ion-input type="text"
+                                 label="Title"
+                                 label-placement="floating"
+                                 name="title"
+                                 errorText="Title is required."
+                                 formControlName="title"
+                      ></ion-input>
+                  </ion-item>
+              </ion-col>
+          </ion-row>
+          <ion-row>
+              <ion-col size-sm="6" offset-sm="3">
+                  <ion-item lines="none">
+                      <ion-textarea type="text"
+                                    label="Description"
+                                    label-placement="floating"
+                                    name="description"
+                                    errorText="Max size is 200"
+                                    formControlName="description"
+                      ></ion-textarea>
+                  </ion-item>
+              </ion-col>
+          </ion-row>
+          <ion-row>
+              <ion-col size-sm="6" offset-sm="3">
+                  <ion-item lines="none">
+                      <ion-input type="number"
+                                 label="Price"
+                                 label-placement="floating"
+                                 name="price"
+                                 errorText="Min is 1."
+                                 formControlName="price"
+                      ></ion-input>
+                  </ion-item>
+              </ion-col>
+          </ion-row>
+          <ion-row>
+              <ion-col size-sm="3" offset-sm="3">
+                  <ion-item lines="none">
+                      <ion-datetime-button datetime="new-offer-date-from"></ion-datetime-button>
+                  </ion-item>
+              </ion-col>
+              <ion-col size-sm="3">
+                  <ion-item lines="none">
+                      <ion-datetime-button datetime="new-offer-date-to"></ion-datetime-button>
+                  </ion-item>
+              </ion-col>
+          </ion-row>
+      </ion-grid>
+      <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+              <ion-datetime
+                      id="new-offer-date-from"
+                      presentation="date"
+                      name="date-from"
+                      formControlName="dateFrom"
+              ></ion-datetime>
+          </ng-template>
+      </ion-modal>
+
+      <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+              <ion-datetime
+                      id="new-offer-date-to"
+                      presentation="date"
+                      name="date-to"
+                      formControlName="dateTo"
+              ></ion-datetime>
+          </ng-template>
+      </ion-modal>
+  </form>
 </ion-content>
