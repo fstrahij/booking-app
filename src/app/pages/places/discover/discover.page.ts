@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Subject, takeUntil} from "rxjs";
+
+import {SegmentChangeEventDetail} from "@ionic/angular";
+
 import {PlacesService} from "../../../services/places/places.service";
 import {Place} from "../../../models/place.model";
-import {SegmentChangeEventDetail} from "@ionic/angular";
 
 @Component({
   selector: 'app-discover',
@@ -9,16 +12,25 @@ import {SegmentChangeEventDetail} from "@ionic/angular";
   styleUrls: ['./discover.page.scss'],
   standalone: false
 })
-export class DiscoverPage implements OnInit {
+export class DiscoverPage implements OnInit, OnDestroy {
+  destroyed$ = new Subject();
   loadedPlaces: Place[] = [];
 
   constructor(private placeService: PlacesService) { }
 
   ngOnInit() {
-    this.loadedPlaces = this.placeService.places;
+    this.placeService
+        .places
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe(places => this.loadedPlaces = places);
   }
 
   onFilterChange(event: CustomEvent<SegmentChangeEventDetail>){
     console.log(event.detail);
+  }
+
+  ngOnDestroy(){
+    this.destroyed$.next(null);
+    this.destroyed$.complete();
   }
 }

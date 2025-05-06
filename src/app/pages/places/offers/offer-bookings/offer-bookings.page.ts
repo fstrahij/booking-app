@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {NavController} from "@ionic/angular";
+
 import {PlacesService} from "../../../../services/places/places.service";
 import {Place} from "../../../../models/place.model";
 
@@ -24,7 +25,9 @@ export class OfferBookingsPage implements OnInit {
         this.navCtrl.navigateBack('places/tabs/offers');
         return;
       }
-      this.place = this.placesService.getPlace(paramMap.get('placeId'));
+      this.placesService
+          .getPlace(paramMap.get('placeId'))
+          .subscribe(place => this.place = place);
     });
   }
 

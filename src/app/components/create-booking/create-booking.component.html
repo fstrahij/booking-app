@@ -92,8 +92,8 @@
                         showDefaultButtons="true"
                         cancelText="cancel"
                         doneText="done"
-                        [min]="place.dateFrom.toISOString()"
-                        [max]="place.dateTo.toISOString()"
+                        [min]="place?.dateFrom.toISOString()"
+                        [max]="place?.dateTo.toISOString()"
                         [(ngModel)]="startDate"
                         (ionChange)="setEndDate()"
                         required
@@ -113,7 +113,7 @@
                         cancelText="cancel"
                         doneText="done"
                         [min]="endDateMin"
-                        [max]="place.dateTo.toISOString()"
+                        [max]="place?.dateTo.toISOString()"
                         [(ngModel)]="endDate"
                         required
                 >

@@ -53,8 +53,8 @@ export class CreateBookingComponent  implements OnInit {
   }
 
   isDatesValid(){
-    const fromDate = new Date(this.form.value['date-from']).getDate();
-    const toDate = new Date(this.form.value['date-to']).getDate();
+    const fromDate = new Date(this.form?.value['date-from']).getDate();
+    const toDate = new Date(this.form?.value['date-to']).getDate();
 
     return fromDate < toDate;
   }

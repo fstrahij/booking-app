@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Router} from "@angular/router";
+import {Subject, takeUntil} from "rxjs";
 
 import {IonItemSliding} from "@ionic/angular";
 
 import {PlacesService} from "../../../services/places/places.service";
 import {Place} from "../../../models/place.model";
-import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-offers',
@@ -12,19 +13,28 @@ import {Router} from "@angular/router";
   styleUrls: ['./offers.page.scss'],
   standalone: false
 })
-export class OffersPage implements OnInit {
+export class OffersPage implements OnInit, OnDestroy {
+  destroyed$ = new Subject();
   offers: Place[] = [];
 
   constructor(private placesService: PlacesService, private router: Router) { }
 
   ngOnInit() {
-    this.offers = this.placesService.places;
+    this.placesService
+        .places
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe(places => this.offers = places);
   }
 
   onEdit(offerId: string, swipableItem: IonItemSliding){
     swipableItem.close();
 
     this.router.navigate(['/', 'places', 'tabs', 'offers', 'edit', offerId]);
+  }
+
+  ngOnDestroy(){
+    this.destroyed$.next(null);
+    this.destroyed$.complete();
   }
 
 }

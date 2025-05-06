@@ -6,5 +6,6 @@ export class Place {
                 public price: number,
                 public dateFrom: Date,
                 public dateTo: Date,
+                public userId: string
     ) {}
 }
