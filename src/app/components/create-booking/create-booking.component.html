@@ -7,6 +7,120 @@
     </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="true" class="ion-text-center">
-    <p>{{ place.description }}</p>
-    <ion-button (click)="onBook()" color="primary">Book</ion-button>
+    <form #f="ngForm" (ngSubmit)="onBook()">
+        <ion-grid>
+            <ion-row>
+                <ion-col size-sm="6" offset-sm="3">
+                    <ion-item lines="none">
+                        <ion-input
+                                type="text"
+                                label="First Name"
+                                label-placement="floating"
+                                name="first-name"
+                                errorText="First Name is required"
+                                ngModel
+                                required>
+                        </ion-input>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size-sm="6" offset-sm="3">
+                    <ion-item lines="none">
+                        <ion-input
+                                type="text"
+                                label="Last Name"
+                                label-placement="floating"
+                                name="last-name"
+                                errorText="Last Name is required"
+                                ngModel
+                                required>
+                        </ion-input>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size-sm="6" offset-sm="3">
+                    <ion-item lines="none">
+                        <ion-select
+                                label="Number of guests"
+                                value="2"
+                                name="guest-number"
+                                errorText="Number of guests is required"
+                                ngModel
+                                required
+                        >
+                            <ion-select-option value="1">1</ion-select-option>
+                            <ion-select-option value="2">2</ion-select-option>
+                            <ion-select-option value="3">3</ion-select-option>
+                        </ion-select>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size-sm="3" offset-sm="3">
+                    <ion-item lines="none">
+                        <ion-label>Date From</ion-label>
+                    </ion-item>
+                    <ion-item lines="none">
+                        <ion-datetime-button datetime="new-offer-date-from"></ion-datetime-button>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size-sm="3">
+                    <ion-item lines="none">
+                        <ion-label>Date To</ion-label>
+                    </ion-item>
+                    <ion-item lines="none">
+                        <ion-datetime-button datetime="new-offer-date-to"></ion-datetime-button>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size-sm="3">
+                    <ion-button type="submit" color="primary" expand="block" [disabled]="f.invalid || !isDatesValid()">Book</ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+
+        <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+                <ion-datetime
+                        id="new-offer-date-from"
+                        presentation="date"
+                        name="date-from"
+                        showDefaultButtons="true"
+                        cancelText="cancel"
+                        doneText="done"
+                        [min]="place.dateFrom.toISOString()"
+                        [max]="place.dateTo.toISOString()"
+                        [(ngModel)]="startDate"
+                        (ionChange)="setEndDate()"
+                        required
+                >
+                    <span slot="title">Select a Reservation Date From</span>
+                </ion-datetime>
+            </ng-template>
+        </ion-modal>
+
+        <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+                <ion-datetime
+                        id="new-offer-date-to"
+                        presentation="date"
+                        name="date-to"
+                        showDefaultButtons="true"
+                        cancelText="cancel"
+                        doneText="done"
+                        [min]="endDateMin"
+                        [max]="place.dateTo.toISOString()"
+                        [(ngModel)]="endDate"
+                        required
+                >
+                    <span slot="title">Select a Reservation Date To</span>
+                </ion-datetime>
+            </ng-template>
+        </ion-modal>
+
+    </form>
 </ion-content>
