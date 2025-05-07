@@ -7,15 +7,18 @@ import { IonicModule } from '@ionic/angular';
 import { EditOfferPageRoutingModule } from './edit-offer-routing.module';
 
 import { EditOfferPage } from './edit-offer.page';
+import {OfferFormComponent} from "../../../../shared/components/offer-form/offer-form.component";
 
 @NgModule({
     imports: [
         CommonModule,
-        ReactiveFormsModule,
         IonicModule,
         EditOfferPageRoutingModule,
         ReactiveFormsModule
     ],
-  declarations: [EditOfferPage]
+    exports: [
+        OfferFormComponent
+    ],
+    declarations: [EditOfferPage, OfferFormComponent]
 })
 export class EditOfferPageModule {}

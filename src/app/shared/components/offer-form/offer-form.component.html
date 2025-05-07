@@ -1,0 +1,92 @@
+<form [formGroup]="form" *ngIf="!isLoading">
+    <ion-grid>
+        <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+                <ion-item lines="none">
+                    <ion-input type="text"
+                               label="Title"
+                               label-placement="floating"
+                               name="title"
+                               errorText="Title is required."
+                               formControlName="title"
+                    ></ion-input>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+                <ion-item lines="none">
+                    <ion-textarea type="text"
+                                  label="Description"
+                                  label-placement="floating"
+                                  name="description"
+                                  errorText="Max size is 200"
+                                  formControlName="description"
+                    ></ion-textarea>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+                <ion-item lines="none">
+                    <ion-input type="number"
+                               label="Price"
+                               label-placement="floating"
+                               name="price"
+                               errorText="Min is 1."
+                               formControlName="price"
+                    ></ion-input>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-sm="3" offset-sm="3">
+                <ion-item lines="none">
+                    <ion-label>Date From</ion-label>
+                </ion-item>
+                <ion-item lines="none">
+                    <ion-datetime-button datetime="new-offer-date-from"></ion-datetime-button>
+                </ion-item>
+            </ion-col>
+            <ion-col size-sm="3">
+                <ion-item lines="none">
+                    <ion-label>Date To</ion-label>
+                </ion-item>
+                <ion-item lines="none">
+                    <ion-datetime-button datetime="new-offer-date-to"></ion-datetime-button>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+            <ion-datetime
+                    id="new-offer-date-from"
+                    presentation="date"
+                    name="date-from"
+                    showDefaultButtons="true"
+                    cancelText="cancel"
+                    doneText="done"
+                    formControlName="dateFrom"
+            >
+                <span slot="title">Select a Date From</span>
+            </ion-datetime>
+        </ng-template>
+    </ion-modal>
+
+    <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+            <ion-datetime
+                    id="new-offer-date-to"
+                    presentation="date"
+                    name="date-to"
+                    showDefaultButtons="true"
+                    cancelText="cancel"
+                    doneText="done"
+                    formControlName="dateTo"
+            >
+                <span slot="title">Select a Date To</span>
+            </ion-datetime>
+        </ng-template>
+    </ion-modal>
+</form>

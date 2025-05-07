@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormGroup} from "@angular/forms";
+import {delay} from "rxjs";
 
 import {NavController} from "@ionic/angular";
 
@@ -16,6 +17,9 @@ import {Place} from "../../../../models/place.model";
 export class EditOfferPage implements OnInit {
   place: Place;
   form: FormGroup;
+  isLoading = false;
+  isChangePage = false;
+  message: string = 'Loading...';
 
   constructor(private route: ActivatedRoute,
               private navCtrl: NavController,
@@ -23,6 +27,8 @@ export class EditOfferPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.form = this.placesService.getForm();
+    this.isLoading = true;
     this.route.paramMap.subscribe(paramMap =>{
       if(!paramMap.has('placeId')){
         this.navCtrl.navigateBack('places/tabs/offers');
@@ -30,23 +36,37 @@ export class EditOfferPage implements OnInit {
       }
       this.placesService
           .getPlace(paramMap.get('placeId'))
-          .subscribe(place => this.place = place);
+          .pipe(delay(1000))
+          .subscribe(place => {
+            this.place = place;
 
-      this.initForm(this.place.title, this.place.description);
+            this.placesService.patchFormValues(this.form, this.place);
+
+            this.isLoading = false;
+          });
     });
   }
 
   onEditOffer(){
     if(this.form.invalid){ return }
 
-    console.log(this.form);
-  }
+    this.message = 'Updating offer...';
+    this.isLoading = true;
 
-  private initForm(title: string, description: string){
-    this.form = new FormGroup({
-      title: new FormControl(title, Validators.required),
-      description: new FormControl(description, Validators.required),
-    })
+    this.placesService
+        .updatePlace(
+            this.place.id,
+            this.form.value.title,
+            this.form.value.description,
+            +this.form.value.price,
+            new Date(this.form.value.dateFrom),
+            new Date(this.form.value.dateTo)  ,
+        )
+        .subscribe(place => {
+          console.log('update finished');
+          this.isLoading = false;
+          this.isChangePage = true;
+        })
   }
 
 }

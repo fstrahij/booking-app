@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Router} from "@angular/router";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
-
-import {LoadingController} from "@ionic/angular";
+import {FormGroup} from "@angular/forms";
 
 import {PlacesService} from "../../../../services/places/places.service";
 
@@ -14,41 +11,31 @@ import {PlacesService} from "../../../../services/places/places.service";
 })
 export class NewOfferPage implements OnInit {
   form: FormGroup;
+  isLoading = false;
+  message: string = 'Loading...';
+  isChangePage  = false;
 
-  constructor(private placesService: PlacesService,
-              private router: Router,
-              private loadingCtrl: LoadingController,
-  ) { }
+  constructor(private placesService: PlacesService) { }
 
   ngOnInit() {
-    this.form = new FormGroup({
-      title: new FormControl(null, Validators.required),
-      description: new FormControl(null, [Validators.required, Validators.maxLength(200)]),
-      price: new FormControl(null, [Validators.required, Validators.min(1)]),
-      dateFrom: new FormControl(null, Validators.required),
-      dateTo: new FormControl(null, Validators.required),
-    })
+    this.form = this.placesService.getForm();
   }
 
   onCreateOffer(){
     if(this.form.invalid) return;
 
-    this.loadingCtrl
-        .create({ message:'Creating new offer...',})
-        .then(loading => {
-          loading.present();
+    this.message = 'Creating new offer...';
+    this.isLoading = true;
 
-          this.placesService.addPlace(
-              this.form.value.title,
-              this.form.value.description,
-              this.form.value.price,
-              this.form.value.dateFrom,
-              this.form.value.dateTo,
-          ).subscribe(places => {
-            loading.dismiss();
-            this.form.reset();
-            this.router.navigate(['/', 'places', 'tabs', 'offers']);
-          });
-        });
+    this.placesService.addPlace(
+        this.form.value.title,
+        this.form.value.description,
+        this.form.value.price,
+        new Date (this.form.value.dateFrom),
+        new Date (this.form.value.dateTo),
+    ).subscribe(places => {
+      this.isLoading = false;
+      this.isChangePage = true;
+    });
   }
 }
