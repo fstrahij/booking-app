@@ -18,6 +18,7 @@ export class DiscoverPage implements OnInit, OnDestroy {
   allPlaces: Place[] = [];
   showedPlaces: Place[] = [];
   featuredPlace: Place;
+  selectedView: string = 'all';
 
   constructor(private placeService: PlacesService,
               private authService: AuthService
@@ -36,13 +37,15 @@ export class DiscoverPage implements OnInit, OnDestroy {
   }
 
   onFilterChange(event: CustomEvent<SegmentChangeEventDetail>){
+    this.selectedView = event.detail.value.toString();
+
     if(event.detail.value === 'all'){
       this.featuredPlace = {...this.allPlaces[0]};
       this.showedPlaces = [...this.allPlaces];
     }
     else if(event.detail.value === 'bookable'){
       this.showedPlaces = [...this.allPlaces.filter(place => place.userId !== this.authService.userId)];
-      if(this.showedPlaces.length > 0){
+      if(this.showedPlaces?.length > 0){
         this.featuredPlace = {...this.showedPlaces[0]};
       }
     }
