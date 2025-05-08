@@ -1,10 +1,8 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormGroup} from "@angular/forms";
 import {Router} from "@angular/router";
 
 import {LoadingController} from "@ionic/angular";
-
-import {Place} from "../../../models/place.model";
 
 @Component({
   selector: 'app-offer-form',

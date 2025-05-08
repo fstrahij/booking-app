@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {Booking} from "../../models/booking.model";
-import {BookingService} from "../../services/booking/booking.service";
+
 import {IonItemSliding} from "@ionic/angular";
+
+import {BookingService} from "../../services/booking/booking.service";
+import {Booking} from "../../models/booking.model";
 
 @Component({
   selector: 'app-bookings',
