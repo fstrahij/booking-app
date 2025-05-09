@@ -1,52 +1,35 @@
 import { Injectable } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {BehaviorSubject, delay, forkJoin, map, Observable, take, tap} from "rxjs";
+import {BehaviorSubject, delay, forkJoin, map, Observable, switchMap, take, tap} from "rxjs";
 
 import {Place} from "../../models/place.model";
 import {AuthService} from "../auth/auth.service";
+import {HttpClient} from "@angular/common/http";
+import {environment} from "../../../environments/environment";
+import {create} from "ionicons/icons";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlacesService {
-  private _places = new BehaviorSubject<Place[]>([
-        new Place(
-            'p1',
-            'Manhatan Mansion',
-            'In the heart of New York City',
-            'https://s1.1zoom.me/big3/366/421441-svetik.jpg',
-            149.99,
-            new Date('2025-06-06'),
-            new Date('2025-12-31'),
-            'u1'
-        ),
-        new Place(
-            'p2',
-            'Zagreb',
-            'Zagreb volim te',
-            'https://www.roadaffair.com/wp-content/uploads/2020/03/aerial-view-zagreb-croatia-shutterstock_1199253325.jpg',
-            89.99,
-            new Date('2025-06-06'),
-            new Date('2025-12-31'),
-            'u2 '
-        ),
-        new Place(
-            'p3',
-            'Ljubljana',
-            'Ljubljana srce Slovenije',
-            'https://adventurousmiriam.com/wp-content/uploads/2015/06/Ljubljana.jpg',
-            99.99,
-            new Date('2025-06-06'),
-            new Date('2025-12-31'),
-            'u1'
-        ),
-    ]);
+  private _places = new BehaviorSubject<Place[]>([]);
 
   get places(){
-    return this._places.asObservable();
+      return this.fetchAll()
+          .pipe(
+              take(1),
+              delay(1000),
+              switchMap(places => {
+                  console.log(places);
+                  this._places.next(places);
+                  return this._places.asObservable();
+              })
+          );
   }
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService,
+              private http: HttpClient,
+  ) { }
 
   getPlace(id: string){
       return this._places
@@ -67,37 +50,51 @@ export class PlacesService {
   addPlace(title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date){
       const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo);
 
-      return this._places
+      return this.post(newPlace)
           .pipe(
               take(1),
               delay(1000),
-              tap(places => this._places.next(places.concat(newPlace)))
-          )
+              switchMap(newPlace => {
+                  return this._places
+                      .pipe(
+                          take(1),
+                          delay(1000),
+                          tap(places => this._places.next(places.concat(newPlace)))
+                      )
+              })
+          );
   }
 
   updatePlace(id: string, title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date){
       const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo, id);
 
-      return forkJoin([
-              this.getPlaceIndex(id),
-              this._places.pipe(take(1))
-          ])
+      return this.update(newPlace)
           .pipe(
-              delay(2000),
-              map(data => {
+              switchMap(response =>{
+                  console.log('update',response);
 
-                  console.log('tusam', data);
-                  const index = data[0];
-                  const places = data[1];
-                  const newPlaces = [
-                      ...places.slice(0, index),
-                      newPlace,
-                      ...places.slice(index + 1),
-                  ];
+                  return forkJoin([
+                      this.getPlaceIndex(id),
+                      this._places.pipe(take(1))
+                  ])
+                      .pipe(
+                          delay(1000),
+                          map(data => {
+                              const index = data[0];
+                              const places = data[1];
+                              const newPlaces = [
+                                  ...places.slice(0, index),
+                                  newPlace,
+                                  ...places.slice(index + 1),
+                              ];
 
-                  this._places.next(newPlaces);
+                              this._places.next(newPlaces);
+                          })
+                      )
               })
-          )
+          );
+
+
   }
 
   getForm(){
@@ -120,16 +117,65 @@ export class PlacesService {
       });
   }
 
-  createPlace(title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date, id?: string){
+  createPlace(title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date, id: string = null, imageUrl: string = 'https://www.roadaffair.com/wp-content/uploads/2020/03/aerial-view-zagreb-croatia-shutterstock_1199253325.jpg'){
       return new Place(
-          id || Math.random().toString(),
+          id,
           title,
           description,
-          'https://www.roadaffair.com/wp-content/uploads/2020/03/aerial-view-zagreb-croatia-shutterstock_1199253325.jpg',
+          imageUrl,
           +guestNumber,
           dateFrom,
           dateTo,
           this.authService.userId
       );
   }
+
+  private post(newPlace: Place){
+      return this.http
+          .post<{name}>(environment.api.offers, newPlace)
+          .pipe(
+              map(response => {
+                  console.log('post', response);
+                  newPlace.id = response.name;
+                  return newPlace;
+              })
+          )
+  }
+  private fetchAll(){
+      return this.http
+          .get<{ name: {
+              title: string,
+              description: string,
+              price: number,
+              imageUrl: string,
+              userId: string,
+              dateFrom: string,
+              dateTo: string,
+          } }>(environment.api.offers)
+          .pipe(
+              map(response => {
+                  const places: Place[] = [];
+                  for(let place in response){
+                      const newPlace = this.createPlace(
+                          response[place].title,
+                          response[place].description,
+                          +response[place].price,
+                          new Date( response[place].dateFrom ),
+                          new Date( response[place].dateTo ),
+                          place,
+                          response[place].imageUrl,
+                      );
+
+                      console.log(newPlace);
+                      places.push(newPlace);
+                  }
+                  console.log(places);
+                  return places;
+              })
+          )
+  }
+  private update(place: Place){
+      return this.http.put(`${environment.api.updateOffer}${place.id}.json`, place);
+  }
+  private delete(id: string){}
 }

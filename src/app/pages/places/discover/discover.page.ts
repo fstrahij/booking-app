@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Subject, takeUntil} from "rxjs";
 
-import {SegmentChangeEventDetail} from "@ionic/angular";
+import {LoadingController, SegmentChangeEventDetail} from "@ionic/angular";
 
 import {PlacesService} from "../../../services/places/places.service";
 import {AuthService} from "../../../services/auth/auth.service";
@@ -21,19 +21,33 @@ export class DiscoverPage implements OnInit, OnDestroy {
   selectedView: string = 'all';
 
   constructor(private placeService: PlacesService,
-              private authService: AuthService
+              private authService: AuthService,
+              private loadingCtrl: LoadingController
   ) { }
 
   ngOnInit() {
-    this.placeService
-        .places
-        .pipe(takeUntil(this.destroyed$))
-        .subscribe(places => {
-          if (places && places.length > 0) {
-            this.allPlaces = this.showedPlaces = places;
-            this.featuredPlace = places[0];
-          }
-        });
+    this.showLoader();
+  }
+
+  showLoader(){
+    this.loadingCtrl.create({
+      keyboardClose: true,
+      message: 'Loading...',
+    })
+    .then(loading =>{
+      loading.present();
+
+      this.placeService
+          .places
+          .pipe(takeUntil(this.destroyed$))
+          .subscribe(places => {
+            if (places && places.length > 0) {
+              this.allPlaces = this.showedPlaces = places;
+              this.featuredPlace = places[0];
+              loading.dismiss();
+            }
+          });
+    });
   }
 
   onFilterChange(event: CustomEvent<SegmentChangeEventDetail>){
