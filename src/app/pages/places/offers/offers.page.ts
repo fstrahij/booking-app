@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {Subject, takeUntil} from "rxjs";
 
-import {IonItemSliding, LoadingController} from "@ionic/angular";
+import {IonItemSliding} from "@ionic/angular";
 
 import {PlacesService} from "../../../services/places/places.service";
 import {Place} from "../../../models/place.model";
@@ -16,32 +16,26 @@ import {Place} from "../../../models/place.model";
 export class OffersPage implements OnInit, OnDestroy {
   destroyed$ = new Subject();
   offers: Place[] = [];
+  isLoading = false;
 
   constructor(private placesService: PlacesService,
               private router: Router,
-              private loadingCtrl: LoadingController,
   ) { }
 
   ngOnInit() {
-    this.showLoader();
+    this.placesService
+        .places
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe(places => {
+          this.offers = places;
+        });
   }
 
-  showLoader(){
-    this.loadingCtrl.create({
-      keyboardClose: true,
-      message: 'Loading...',
-    })
-    .then(loading =>{
-      loading.present();
+  ionViewDidEnter(){
+    this.isLoading = true;
 
-      this.placesService
-          .places
-          .pipe(takeUntil(this.destroyed$))
-          .subscribe(places => {
-            this.offers = places;
-            loading.dismiss();
-          });
-    });
+    this.placesService.fetchAll()
+        .subscribe(()=> this.isLoading = false);
   }
 
   onEdit(offerId: string, swipableItem: IonItemSliding){

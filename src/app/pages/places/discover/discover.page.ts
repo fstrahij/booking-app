@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Subject, takeUntil} from "rxjs";
 
-import {LoadingController, SegmentChangeEventDetail} from "@ionic/angular";
+import {SegmentChangeEventDetail} from "@ionic/angular";
 
 import {PlacesService} from "../../../services/places/places.service";
 import {AuthService} from "../../../services/auth/auth.service";
@@ -19,35 +19,28 @@ export class DiscoverPage implements OnInit, OnDestroy {
   showedPlaces: Place[] = [];
   featuredPlace: Place;
   selectedView: string = 'all';
+  isLoading = false;
 
   constructor(private placeService: PlacesService,
-              private authService: AuthService,
-              private loadingCtrl: LoadingController
+              private authService: AuthService
   ) { }
 
   ngOnInit() {
-    this.showLoader();
+    this.placeService
+        .places
+        .pipe(takeUntil(this.destroyed$))
+        .subscribe(places => {
+          if (places && places.length > 0) {
+            this.allPlaces = this.showedPlaces = places;
+            this.featuredPlace = places[0];
+          }
+        });
+    //this.showLoader();
   }
 
-  showLoader(){
-    this.loadingCtrl.create({
-      keyboardClose: true,
-      message: 'Loading...',
-    })
-    .then(loading =>{
-      loading.present();
-
-      this.placeService
-          .places
-          .pipe(takeUntil(this.destroyed$))
-          .subscribe(places => {
-            if (places && places.length > 0) {
-              this.allPlaces = this.showedPlaces = places;
-              this.featuredPlace = places[0];
-              loading.dismiss();
-            }
-          });
-    });
+  ionViewDidEnter(){
+    this.isLoading = true;
+    this.placeService.fetchAll().subscribe(()=> this.isLoading = false);
   }
 
   onFilterChange(event: CustomEvent<SegmentChangeEventDetail>){

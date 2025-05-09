@@ -9,3 +9,13 @@ export class Place {
                 public userId: string
     ) {}
 }
+
+export interface PlaceData{
+    title: string,
+    description: string,
+    price: number,
+    imageUrl: string,
+    userId: string,
+    dateFrom: string,
+    dateTo: string,
+}

@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {BehaviorSubject, delay, forkJoin, map, Observable, switchMap, take, tap} from "rxjs";
-
-import {Place} from "../../models/place.model";
-import {AuthService} from "../auth/auth.service";
 import {HttpClient} from "@angular/common/http";
+import {BehaviorSubject, delay, forkJoin, map, switchMap, take, tap} from "rxjs";
+
+import {AuthService} from "../auth/auth.service";
+import {Place, PlaceData} from "../../models/place.model";
 import {environment} from "../../../environments/environment";
-import {create} from "ionicons/icons";
 
 @Injectable({
   providedIn: 'root'
@@ -15,16 +14,7 @@ export class PlacesService {
   private _places = new BehaviorSubject<Place[]>([]);
 
   get places(){
-      return this.fetchAll()
-          .pipe(
-              take(1),
-              delay(1000),
-              switchMap(places => {
-                  console.log(places);
-                  this._places.next(places);
-                  return this._places.asObservable();
-              })
-          );
+      return this._places.asObservable();
   }
 
   constructor(private authService: AuthService,
@@ -130,50 +120,43 @@ export class PlacesService {
       );
   }
 
-  private post(newPlace: Place){
+  fetchAll(){
       return this.http
-          .post<{name}>(environment.api.offers, newPlace)
+          .get<{ [key: string]: PlaceData }>(environment.api.offers)
           .pipe(
-              map(response => {
-                  console.log('post', response);
-                  newPlace.id = response.name;
-                  return newPlace;
-              })
-          )
-  }
-  private fetchAll(){
-      return this.http
-          .get<{ name: {
-              title: string,
-              description: string,
-              price: number,
-              imageUrl: string,
-              userId: string,
-              dateFrom: string,
-              dateTo: string,
-          } }>(environment.api.offers)
-          .pipe(
+              delay(1000),
               map(response => {
                   const places: Place[] = [];
-                  for(let place in response){
-                      const newPlace = this.createPlace(
-                          response[place].title,
-                          response[place].description,
-                          +response[place].price,
-                          new Date( response[place].dateFrom ),
-                          new Date( response[place].dateTo ),
-                          place,
-                          response[place].imageUrl,
-                      );
-
-                      console.log(newPlace);
-                      places.push(newPlace);
+                  for(const key in response){
+                      if(response.hasOwnProperty(key)){
+                          const newPlace = this.createPlace(
+                              response[key].title,
+                              response[key].description,
+                              +response[key].price,
+                              new Date( response[key].dateFrom ),
+                              new Date( response[key].dateTo ),
+                              key,
+                              response[key].imageUrl,
+                          );
+                          places.push(newPlace);
+                      }
                   }
-                  console.log(places);
                   return places;
-              })
+              }),
+              tap(places => this._places.next(places))
           )
   }
+    private post(newPlace: Place){
+        return this.http
+            .post<{name}>(environment.api.offers, newPlace)
+            .pipe(
+                map(response => {
+                    console.log('post', response);
+                    newPlace.id = response.name;
+                    return newPlace;
+                })
+            )
+    }
   private update(place: Place){
       return this.http.put(`${environment.api.updateOffer}${place.id}.json`, place);
   }
