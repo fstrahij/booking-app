@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 
 import {
     ActionSheetController,
+    AlertController,
     LoadingController,
     ModalController,
     NavController
@@ -13,6 +14,7 @@ import {AuthService} from "../../../../services/auth/auth.service";
 import {BookingService} from "../../../../services/booking/booking.service";
 import {CreateBookingComponent} from "../../../../components/create-booking/create-booking.component";
 import {Place} from "../../../../models/place.model";
+import {catchError, throwError} from "rxjs";
 
 @Component({
   selector: 'app-place-details',
@@ -23,8 +25,10 @@ import {Place} from "../../../../models/place.model";
 export class PlaceDetailsPage implements OnInit {
   place: Place;
   isBookable = false;
+  isLoading = false;
 
   constructor(private route: ActivatedRoute,
+              private router: Router,
               private navCtrl: NavController,
               private placesService: PlacesService,
               private bookingsService: BookingService,
@@ -32,9 +36,11 @@ export class PlaceDetailsPage implements OnInit {
               private modalCtrl: ModalController,
               private actionSheetCtrl: ActionSheetController,
               private loadingCtrl: LoadingController,
+              private alertCtrl: AlertController,
   ) { }
 
   ngOnInit() {
+    this.isLoading = true;
     this.route.paramMap.subscribe(paramMap =>{
       if(!paramMap.has('placeId')){
         this.navCtrl.navigateBack('places/tabs/discover');
@@ -43,9 +49,25 @@ export class PlaceDetailsPage implements OnInit {
 
       this.placesService
           .getPlace(paramMap.get('placeId'))
+          .pipe(
+              catchError(error => {
+                  console.log(error);
+
+                  this.alertCtrl.create({
+                      header:'An error occured!',
+                      message: 'Place could not be fetched. Please try again later',
+                      buttons: [{
+                          text: 'Okay',
+                          handler: () => this.router.navigate(['/places/tabs/discover']),
+                      }]
+                  }).then(alert => alert.present());
+                  return throwError(error);
+              })
+          )
           .subscribe(place => {
               this.place = place;
               this.isBookable = this.place.userId !== this.authService.userId;
+              this.isLoading = false;
           });
     });
   }

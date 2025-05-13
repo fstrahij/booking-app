@@ -35,7 +35,6 @@ export class DiscoverPage implements OnInit, OnDestroy {
             this.featuredPlace = places[0];
           }
         });
-    //this.showLoader();
   }
 
   ionViewWillEnter(){
