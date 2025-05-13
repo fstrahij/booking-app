@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, delay, forkJoin, map, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, delay, forkJoin, map, of, switchMap, take, tap} from "rxjs";
 
 import {AuthService} from "../auth/auth.service";
 import {Place, PlaceData} from "../../models/place.model";
@@ -22,7 +22,9 @@ export class PlacesService {
   ) { }
 
   getPlace(id: string){
-      return this._places
+      return !this._places || this._places.value.length <= 0 ?
+          this.fetchSinglePLace(id) :
+          this._places
           .pipe(
               take(1),
               map(places => places.find( p => p.id === id ))
@@ -56,17 +58,19 @@ export class PlacesService {
   }
 
   updatePlace(id: string, title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date){
-      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo, id);
+      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo);
 
-      return this.update(newPlace)
+      return this.update(newPlace, id)
           .pipe(
               switchMap(response =>{
                   console.log('update',response);
 
-                  return forkJoin([
-                      this.getPlaceIndex(id),
-                      this._places.pipe(take(1))
-                  ])
+                  return !this._places || this._places.value.length <= 0 ?
+                      of(null) :
+                      forkJoin([
+                          this.getPlaceIndex(id),
+                          this._places.pipe(take(1))
+                      ])
                       .pipe(
                           delay(1000),
                           map(data => {
@@ -80,11 +84,61 @@ export class PlacesService {
 
                               this._places.next(newPlaces);
                           })
-                      )
+                      );
               })
           );
+  }
 
+    fetchAll(){
+        return this.http
+            .get<{ [key: string]: PlaceData }>(environment.api.offers)
+            .pipe(
+                delay(1000),
+                map(response => {
+                    const places: Place[] = [];
+                    for(const key in response){
+                        if(response.hasOwnProperty(key)){
+                            const newPlace = this.createPlace(
+                                response[key].title,
+                                response[key].description,
+                                +response[key].price,
+                                new Date( response[key].dateFrom ),
+                                new Date( response[key].dateTo ),
+                                key,
+                                response[key].imageUrl,
+                                response[key].userId
+                            );
+                            places.push(newPlace);
+                        }
+                    }
+                    return places;
+                }),
+                tap(places => this._places.next(places))
+            )
+    }
 
+  fetchSinglePLace(id: string){
+      return this.http
+          .get< PlaceData >(`${environment.api.updateOffer}${id}.json`)
+          .pipe(
+              map(response => {
+                  for(const key in response){
+                      if(response.hasOwnProperty(key)){
+                          return this.createPlace(
+                              response.title,
+                              response.description,
+                              +response.price,
+                              new Date( response.dateFrom ),
+                              new Date( response.dateTo ),
+                              id,
+                              response.imageUrl,
+                              response.userId
+                          );
+                      }
+                  }
+                  return null;
+              })
+          )
   }
 
   getForm(){
@@ -107,7 +161,16 @@ export class PlacesService {
       });
   }
 
-  createPlace(title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date, id: string = null, imageUrl: string = 'https://www.roadaffair.com/wp-content/uploads/2020/03/aerial-view-zagreb-croatia-shutterstock_1199253325.jpg'){
+  createPlace(
+      title: string,
+      description: string,
+      guestNumber: number,
+      dateFrom: Date,
+      dateTo: Date,
+      id: string = null,
+      imageUrl: string = 'https://www.roadaffair.com/wp-content/uploads/2020/03/aerial-view-zagreb-croatia-shutterstock_1199253325.jpg',
+      userId?: string
+  ){
       return new Place(
           id,
           title,
@@ -116,35 +179,8 @@ export class PlacesService {
           +guestNumber,
           dateFrom,
           dateTo,
-          this.authService.userId
+          userId || this.authService.userId
       );
-  }
-
-  fetchAll(){
-      return this.http
-          .get<{ [key: string]: PlaceData }>(environment.api.offers)
-          .pipe(
-              delay(1000),
-              map(response => {
-                  const places: Place[] = [];
-                  for(const key in response){
-                      if(response.hasOwnProperty(key)){
-                          const newPlace = this.createPlace(
-                              response[key].title,
-                              response[key].description,
-                              +response[key].price,
-                              new Date( response[key].dateFrom ),
-                              new Date( response[key].dateTo ),
-                              key,
-                              response[key].imageUrl,
-                          );
-                          places.push(newPlace);
-                      }
-                  }
-                  return places;
-              }),
-              tap(places => this._places.next(places))
-          )
   }
     private post(newPlace: Place){
         return this.http
@@ -157,8 +193,8 @@ export class PlacesService {
                 })
             )
     }
-  private update(place: Place){
-      return this.http.put(`${environment.api.updateOffer}${place.id}.json`, place);
+  private update(place: Place, id: string){
+      return this.http.put(`${environment.api.updateOffer}${id}.json`, place);
   }
   private delete(id: string){}
 }

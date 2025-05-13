@@ -1,13 +1,16 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
       <ion-buttons slot="start">
-          <ion-back-button defaultHref="/places/tabs/offers"></ion-back-button>
+          <ion-back-button
+                  defaultHref="/places/tabs/offers"
+                  [disabled]="isLoading"
+          ></ion-back-button>
       </ion-buttons>
     <ion-title>New Offer</ion-title>
       <ion-buttons slot="end">
           <ion-button
                   (click)="onCreateOffer()"
-                  [disabled]="form?.invalid"
+                  [disabled]="isLoading || form?.invalid"
           >
               <ion-icon
                       name="checkmark"

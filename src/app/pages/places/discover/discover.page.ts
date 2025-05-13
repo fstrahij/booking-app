@@ -38,9 +38,10 @@ export class DiscoverPage implements OnInit, OnDestroy {
     //this.showLoader();
   }
 
-  ionViewDidEnter(){
+  ionViewWillEnter(){
     this.isLoading = true;
-    this.placeService.fetchAll().subscribe(()=> this.isLoading = false);
+    this.placeService.fetchAll()
+        .subscribe(()=> this.isLoading = false);
   }
 
   onFilterChange(event: CustomEvent<SegmentChangeEventDetail>){
@@ -52,6 +53,7 @@ export class DiscoverPage implements OnInit, OnDestroy {
     }
     else if(event.detail.value === 'bookable'){
       this.showedPlaces = [...this.allPlaces.filter(place => place.userId !== this.authService.userId)];
+      console.log('tusam',this.allPlaces[0]);
       if(this.showedPlaces?.length > 0){
         this.featuredPlace = {...this.showedPlaces[0]};
       }

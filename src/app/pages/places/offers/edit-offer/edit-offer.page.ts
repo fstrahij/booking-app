@@ -20,6 +20,7 @@ export class EditOfferPage implements OnInit {
   isLoading = false;
   isChangePage = false;
   message: string = 'Loading...';
+  placeId = '';
 
   constructor(private route: ActivatedRoute,
               private navCtrl: NavController,
@@ -34,6 +35,7 @@ export class EditOfferPage implements OnInit {
         this.navCtrl.navigateBack('places/tabs/offers');
         return;
       }
+      this.placeId = paramMap.get('placeId');
       this.placesService
           .getPlace(paramMap.get('placeId'))
           .pipe(delay(1000))

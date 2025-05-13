@@ -15,17 +15,20 @@ import {Subject, takeUntil} from "rxjs";
 export class BookingsPage implements OnInit, OnDestroy {
   destroyed$ = new Subject();
   loadedBookings: Booking[];
+  isLoading = false;
 
   constructor(private bookingService: BookingService,
               private loadingCtrl: LoadingController
   ) { }
 
   ngOnInit() {
+    this.isLoading = true;
     this.bookingService
         .bookings
         .pipe(takeUntil(this.destroyed$))
         .subscribe(bookings =>{
           this.loadedBookings = bookings;
+          this.isLoading = false;
         });
   }
 

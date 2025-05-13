@@ -14,6 +14,8 @@ import {Place} from "../../../../models/place.model";
 })
 export class OfferBookingsPage implements OnInit {
   place: Place;
+  placeId = '';
+  isLoading = false;
 
   constructor(private route: ActivatedRoute,
               private navCtrl: NavController,
@@ -21,14 +23,22 @@ export class OfferBookingsPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.isLoading = true;
     this.route.paramMap.subscribe(paramMap => {
       if(!paramMap.has('placeId')){
         this.navCtrl.navigateBack('places/tabs/offers');
         return;
       }
+
+      this.placeId = paramMap.get('placeId');
+
       this.placesService
           .getPlace(paramMap.get('placeId'))
-          .subscribe(place => this.place = place);
+          .subscribe(place => {
+            this.place = place;
+
+            this.isLoading = false;
+          });
     });
   }
 
