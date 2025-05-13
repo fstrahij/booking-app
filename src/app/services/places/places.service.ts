@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, delay, forkJoin, map, of, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, catchError, delay, forkJoin, map, of, switchMap, take, tap, throwError} from "rxjs";
 
 import {AuthService} from "../auth/auth.service";
 import {Place, PlaceData} from "../../models/place.model";
@@ -136,7 +136,7 @@ export class PlacesService {
                           );
                       }
                   }
-                  return null;
+                  throw new Error('Place not found');
               })
           )
   }

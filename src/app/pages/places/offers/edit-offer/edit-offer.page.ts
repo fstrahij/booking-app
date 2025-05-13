@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {FormGroup} from "@angular/forms";
-import {delay} from "rxjs";
+import {catchError, delay, throwError} from "rxjs";
 
-import {NavController} from "@ionic/angular";
+import {AlertController, NavController} from "@ionic/angular";
 
 import {PlacesService} from "../../../../services/places/places.service";
 import {Place} from "../../../../models/place.model";
@@ -23,8 +23,10 @@ export class EditOfferPage implements OnInit {
   placeId = '';
 
   constructor(private route: ActivatedRoute,
+              private router: Router,
               private navCtrl: NavController,
-              private placesService: PlacesService
+              private placesService: PlacesService,
+              private alertCtrl: AlertController,
   ) { }
 
   ngOnInit() {
@@ -38,7 +40,22 @@ export class EditOfferPage implements OnInit {
       this.placeId = paramMap.get('placeId');
       this.placesService
           .getPlace(paramMap.get('placeId'))
-          .pipe(delay(1000))
+          .pipe(
+              delay(1000),
+              catchError(error => {
+                console.log(error);
+
+                this.alertCtrl.create({
+                  header:'An error occured!',
+                  message: 'Place could not be fetched. Please try again later',
+                  buttons: [{
+                    text: 'Okay',
+                    handler: () => this.router.navigate(['/places/tabs/offers']),
+                  }]
+                }).then(alert => alert.present());
+                return throwError(error);
+              })
+          )
           .subscribe(place => {
             this.place = place;
 
