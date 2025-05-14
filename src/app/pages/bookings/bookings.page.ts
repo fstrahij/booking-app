@@ -32,6 +32,13 @@ export class BookingsPage implements OnInit, OnDestroy {
         });
   }
 
+  ionViewWillEnter(){
+    this.isLoading = true;
+    this.bookingService
+        .fetchUserBookings()
+        .subscribe(()=> this.isLoading = false);
+  }
+
   onCancel(id:string, slidingItem: IonItemSliding){
     slidingItem.close();
 

@@ -11,3 +11,15 @@ export class Booking {
                 public dateTo: Date,
     ) {}
 }
+
+export interface BookingData{
+    placeId: string,
+    placeTitle: string,
+    placeImage: string,
+    firstName: string,
+    lastName: string,
+    guestNumber: number,
+    guestId: string,
+    dateFrom: string,
+    dateTo: string,
+}

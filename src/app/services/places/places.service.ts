@@ -119,7 +119,7 @@ export class PlacesService {
 
   fetchSinglePLace(id: string){
       return this.http
-          .get< PlaceData >(`${environment.api.updateOffer}${id}.json`)
+          .get< PlaceData >(`${environment.api.singleOffer}${id}.json`)
           .pipe(
               map(response => {
                   for(const key in response){
@@ -194,7 +194,7 @@ export class PlacesService {
             )
     }
   private update(place: Place, id: string){
-      return this.http.put(`${environment.api.updateOffer}${id}.json`, place);
+      return this.http.put(`${environment.api.singleOffer}${id}.json`, place);
   }
   private delete(id: string){}
 }

@@ -6,7 +6,10 @@ export const environment = {
   production: false,
   api: {
     offers: 'https://booking-app-2b827-default-rtdb.europe-west1.firebasedatabase.app/offers.json',
-    updateOffer: 'https://booking-app-2b827-default-rtdb.europe-west1.firebasedatabase.app/offers/',
+    singleOffer: 'https://booking-app-2b827-default-rtdb.europe-west1.firebasedatabase.app/offers/',
+    bookings: 'https://booking-app-2b827-default-rtdb.europe-west1.firebasedatabase.app/bookings.json',
+    bookingsByUser: 'https://booking-app-2b827-default-rtdb.europe-west1.firebasedatabase.app/bookings.json?orderBy="guestId"&equalTo=',
+    singleBooking: 'https://booking-app-2b827-default-rtdb.europe-west1.firebasedatabase.app/bookings/',
   }
 };
 
