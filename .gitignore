@@ -137,7 +137,7 @@ dist
 
 # angular
 .angular/*
-src/environments/*
+src/environments/
 
 # web storm
 .idea/*
