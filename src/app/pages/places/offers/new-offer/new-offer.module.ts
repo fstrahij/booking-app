@@ -8,6 +8,8 @@ import { NewOfferPageRoutingModule } from './new-offer-routing.module';
 
 import { NewOfferPage } from './new-offer.page';
 import {EditOfferPageModule} from "../edit-offer/edit-offer.module";
+import {LocationPickerComponent} from "../../../../shared/components/location-picker/location-picker.component";
+import {MapModalComponent} from "../../../../shared/components/map-modal/map-modal.component";
 
 @NgModule({
     imports: [
@@ -17,6 +19,6 @@ import {EditOfferPageModule} from "../edit-offer/edit-offer.module";
         NewOfferPageRoutingModule,
         EditOfferPageModule
     ],
-  declarations: [NewOfferPage]
+    declarations: [NewOfferPage, LocationPickerComponent, MapModalComponent]
 })
 export class NewOfferPageModule {}
