@@ -10,6 +10,7 @@ import { NewOfferPage } from './new-offer.page';
 import {EditOfferPageModule} from "../edit-offer/edit-offer.module";
 import {LocationPickerComponent} from "../../../../shared/components/location-picker/location-picker.component";
 import {MapModalComponent} from "../../../../shared/components/map-modal/map-modal.component";
+import {MapComponent} from "@maplibre/ngx-maplibre-gl";
 
 @NgModule({
     imports: [
@@ -17,7 +18,8 @@ import {MapModalComponent} from "../../../../shared/components/map-modal/map-mod
         ReactiveFormsModule,
         IonicModule,
         NewOfferPageRoutingModule,
-        EditOfferPageModule
+        EditOfferPageModule,
+        MapComponent
     ],
     declarations: [NewOfferPage, LocationPickerComponent, MapModalComponent]
 })

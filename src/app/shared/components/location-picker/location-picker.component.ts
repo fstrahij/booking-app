@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import {ModalController} from "@ionic/angular";
+import {HttpClient} from "@angular/common/http";
+import {map} from "rxjs";
+
 import {MapModalComponent} from "../map-modal/map-modal.component";
+import {environment} from "../../../../environments/environment";
+import {MapResponse} from "../../../models/map.model";
+import {PlaceLocation} from "../../../models/location.model";
 
 @Component({
   selector: 'app-location-picker',
@@ -10,7 +16,9 @@ import {MapModalComponent} from "../map-modal/map-modal.component";
 })
 export class LocationPickerComponent  implements OnInit {
 
-  constructor(private modalCtrl: ModalController) { }
+  constructor(private modalCtrl: ModalController,
+              private http: HttpClient
+  ) { }
 
   ngOnInit() {}
 
@@ -18,7 +26,45 @@ export class LocationPickerComponent  implements OnInit {
     this.modalCtrl.create({
       component: MapModalComponent,
     }).then(
-        modalEl => modalEl.present()
-    );
+        modalEl => {
+          modalEl.onDidDismiss()
+              .then(data => {
+                  if(!data?.data?.data) return;
+
+                  const pickedLocation: PlaceLocation = {
+                      lat: data.data.data.lat,
+                      lng: data.data.data.lng,
+                      address: null,
+                      imageUrl: null
+                  }
+
+                  this.getAddress(data.data.data.lat, data.data.data.lng)
+                      .pipe(
+                          map(data=> {
+                              pickedLocation.address = data.address;
+                              pickedLocation.imageUrl = data.extratags?.image;
+                              console.log(pickedLocation);
+                          })
+                      ).subscribe()
+              });
+
+          modalEl.present()
+    });
+  }
+
+  private getAddress(lat: number, lng: number){
+      return this.http.get<MapResponse>(`${environment.api.geocode}/reverse?format=jsonv2&extratags=1&lat=${lat}&lon=${lng}`)
+          .pipe(
+              map(response => {
+                  console.log(response);
+                  const map: MapResponse = {
+                      address: response.address,
+                      osm_id: response.osm_id,
+                      osm_type: response.osm_type,
+                      extratags: response.extratags
+                  };
+                  return map;
+              }),
+          )
   }
 }
