@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import {ModalController} from "@ionic/angular";
 
-import {Map, Marker, NavigationControl} from "maplibre-gl";
+import {GeolocateControl, Map, Marker, NavigationControl} from "maplibre-gl";
 import {environment} from "../../../../environments/environment";
 
 
@@ -65,6 +65,13 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
       showZoom: true,
       showCompass: false
     }), controlPos);
+
+    this.map.addControl(new GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true
+    }));
   }
 
   private setMarker(initialState){

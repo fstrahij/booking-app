@@ -15,6 +15,7 @@ import {PlaceLocation} from "../../../models/location.model";
   standalone: false
 })
 export class LocationPickerComponent  implements OnInit {
+  isLoading = false;
 
   constructor(private modalCtrl: ModalController,
               private http: HttpClient
@@ -29,7 +30,11 @@ export class LocationPickerComponent  implements OnInit {
         modalEl => {
           modalEl.onDidDismiss()
               .then(data => {
-                  if(!data?.data?.data) return;
+                  this.isLoading = true;
+                  if(!data?.data?.data) {
+                      this.isLoading = false;
+                      return;
+                  }
 
                   const pickedLocation: PlaceLocation = {
                       lat: data.data.data.lat,
@@ -44,6 +49,7 @@ export class LocationPickerComponent  implements OnInit {
                               pickedLocation.address = data.address;
                               pickedLocation.imageUrl = data.extratags?.image;
                               console.log(pickedLocation);
+                              this.isLoading = false
                           })
                       ).subscribe()
               });
