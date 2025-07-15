@@ -6,15 +6,21 @@ import {BehaviorSubject, catchError, delay, forkJoin, map, of, switchMap, take, 
 import {AuthService} from "../auth/auth.service";
 import {Place, PlaceData} from "../../models/place.model";
 import {environment} from "../../../environments/environment";
+import { PlaceLocation, PlaceLocationResponse } from 'src/app/models/location.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlacesService {
   private _places = new BehaviorSubject<Place[]>([]);
+  private _location = new BehaviorSubject<PlaceLocation>(null);
 
   get places(){
       return this._places.asObservable();
+  }
+
+  get location(){
+    return this._location.asObservable();
   }
 
   constructor(private authService: AuthService,
@@ -39,8 +45,8 @@ export class PlacesService {
           );
   }
 
-  addPlace(title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date){
-      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo);
+  addPlace(title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date, address: string, lat: number, lng: number){
+      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo, address, lat, lng);
 
       return this.post(newPlace)
           .pipe(
@@ -57,8 +63,16 @@ export class PlacesService {
           );
   }
 
+  addPickedLocation(newLocation: PlaceLocation){
+        return this._location
+            .pipe(
+                take(1),
+                tap(() => this._location.next(newLocation))
+            );
+  }
+
   updatePlace(id: string, title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date){
-      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo);
+      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo, null, null, null);
 
       return this.update(newPlace, id)
           .pipe(
@@ -104,6 +118,9 @@ export class PlacesService {
                                 +response[key].price,
                                 new Date( response[key].dateFrom ),
                                 new Date( response[key].dateTo ),
+                                response[key].address,
+                                +response[key].lat,
+                                +response[key].lng,
                                 key,
                                 response[key].imageUrl,
                                 response[key].userId
@@ -130,6 +147,9 @@ export class PlacesService {
                               +response.price,
                               new Date( response.dateFrom ),
                               new Date( response.dateTo ),
+                              null,
+                              null,
+                              null,
                               id,
                               response.imageUrl,
                               response.userId
@@ -139,6 +159,26 @@ export class PlacesService {
                   throw new Error('Place not found');
               })
           )
+  }
+
+  fetchSearchLocation(address: string){
+      const cleanAddress = address.replace(/\s/g, "+").toLowerCase();
+
+      return this.http.get<PlaceLocationResponse[]>(`${environment.api.geocode}/search?q=${cleanAddress}&format=jsonv2`)
+            .pipe(
+                map(response => {
+                    for(const key in response){
+                        if(response.hasOwnProperty(key) && response.length > 0){
+                            return {
+                                address: response[0].display_name,
+                                lat: +response[0].lat,
+                                lng: +response[0].lon
+                            };
+                        }
+                    }
+                    throw new Error('Search location not found');
+                })
+            );
   }
 
   getForm(){
@@ -167,9 +207,12 @@ export class PlacesService {
       guestNumber: number,
       dateFrom: Date,
       dateTo: Date,
+      address: string,
+      lat: number,
+      lng: number,
       id: string = null,
       imageUrl: string = 'https://www.roadaffair.com/wp-content/uploads/2020/03/aerial-view-zagreb-croatia-shutterstock_1199253325.jpg',
-      userId?: string
+      userId?: string,
   ){
       return new Place(
           id,
@@ -179,7 +222,10 @@ export class PlacesService {
           +guestNumber,
           dateFrom,
           dateTo,
-          userId || this.authService.userId
+          userId || this.authService.userId,
+          address,
+          lat.toString(),
+          lng.toString()
       );
   }
     private post(newPlace: Place){

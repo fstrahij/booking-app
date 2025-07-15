@@ -6,7 +6,10 @@ export class Place {
                 public price: number,
                 public dateFrom: Date,
                 public dateTo: Date,
-                public userId: string
+                public userId: string,
+                public address?: string,
+                public lat?: string,
+                public lng?: string,
     ) {}
 }
 
@@ -18,4 +21,7 @@ export interface PlaceData{
     userId: string,
     dateFrom: string,
     dateTo: string,
+    address?: string,
+    lat?: string,
+    lng?: string,
 }

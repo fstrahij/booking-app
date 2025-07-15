@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {FormGroup} from "@angular/forms";
 
 import {PlacesService} from "../../../../services/places/places.service";
+import { PlaceLocation } from 'src/app/models/location.model';
 
 @Component({
   selector: 'app-new-offer',
@@ -14,11 +15,15 @@ export class NewOfferPage implements OnInit {
   isLoading = false;
   message: string = 'Loading...';
   isChangePage  = false;
+  pickedLocation: PlaceLocation;
 
   constructor(private placesService: PlacesService) { }
 
   ngOnInit() {
     this.form = this.placesService.getForm();
+
+    this.placesService.location
+      .subscribe(location => this.pickedLocation = location);
   }
 
   onCreateOffer(){
@@ -33,6 +38,9 @@ export class NewOfferPage implements OnInit {
         this.form.value.price,
         new Date (this.form.value.dateFrom),
         new Date (this.form.value.dateTo),
+        this.pickedLocation.address,
+        this.pickedLocation.lat,
+        this.pickedLocation.lng,
     ).subscribe(places => {
       this.isLoading = false;
       this.isChangePage = true;

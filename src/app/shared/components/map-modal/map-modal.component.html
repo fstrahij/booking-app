@@ -8,5 +8,28 @@
 </ion-header>
 
 <ion-content>
+    <ion-grid class="custom-container">
+        <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
+                <ion-item lines="none">
+                    <ion-input type="text"
+                               name="search-address"
+                               placeholder="Search"
+                               [clearInput]="true"
+                               #search
+                    >
+                    </ion-input>
+                    <ion-button
+                            (click)="onSearch(search.value.toString())"
+                            fill="clear"
+                            slot="start"
+                            size="default"
+                    >
+                        <ion-icon slot="icon-only" name="search"></ion-icon>
+                    </ion-button>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
     <div class="map" #map></div>
 </ion-content>

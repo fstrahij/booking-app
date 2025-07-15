@@ -6,10 +6,13 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {ModalController} from "@ionic/angular";
+import {LoadingController, ModalController} from "@ionic/angular";
 
 import {GeolocateControl, Map, Marker, NavigationControl} from "maplibre-gl";
+import {PlacesService} from "../../../services/places/places.service";
 import {environment} from "../../../../environments/environment";
+import { PlaceLocation } from 'src/app/models/location.model';
+import { catchError } from 'rxjs';
 
 
 @Component({
@@ -27,8 +30,12 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
     color: "#FF0000",
     draggable: true,
   });
+  location: PlaceLocation;
 
-  constructor(private modalCtrl: ModalController) { }
+  constructor(private modalCtrl: ModalController, 
+              private loadingCtrl: LoadingController,
+              private placesService: PlacesService
+            ) { }
 
   ngOnInit() {
   }
@@ -46,7 +53,37 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCancel(){
-    this.modalCtrl.dismiss();
+    this.modalCtrl.dismiss({
+          location: {
+            address: this.location?.address,
+            lat: this.location?.lat,
+            lng: this.location?.lng
+          }
+        });
+  }
+
+  onSearch(address: string) {
+    if(address.trim().length <= 0) return;
+
+    this.loadingCtrl
+          .create({
+            keyboardClose: true,
+            message: 'Loading...'
+          })
+          .then(loading =>  {
+            loading.present();
+
+            this.placesService.fetchSearchLocation(address)
+                .pipe( catchError( () => this.loadingCtrl?.dismiss() ) )  
+                .subscribe((response: PlaceLocation)=>{
+                  if(!response || !response?.address || !response?.lat?.toString() || !response?.lng?.toString()) return;
+
+                  this.setMarker({lng: response.lng, lat: response.lat});
+                  this.map.setCenter([response.lng, response.lat]);
+                  this.location = {...response};
+                  this.loadingCtrl?.dismiss();
+                })
+          });
   }
 
   private getMap(initialState){

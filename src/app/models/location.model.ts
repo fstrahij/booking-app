@@ -1,11 +1,11 @@
-import {Address} from "./map.model";
-
-export interface Coordinates {
+export interface PlaceLocation{
+    address: string,
     lat: number,
     lng: number
 }
 
-export interface PlaceLocation extends Coordinates{
-    address: Address,
-    imageUrl: string
+export interface PlaceLocationResponse{
+    display_name: string,
+    lat: string,
+    lon: string
 }

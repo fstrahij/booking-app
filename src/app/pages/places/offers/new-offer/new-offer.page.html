@@ -10,7 +10,7 @@
       <ion-buttons slot="end">
           <ion-button
                   (click)="onCreateOffer()"
-                  [disabled]="isLoading || form?.invalid"
+                  [disabled]="isLoading || form?.invalid || !pickedLocation"
           >
               <ion-icon
                       name="checkmark"
