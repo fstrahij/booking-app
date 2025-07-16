@@ -8,8 +8,8 @@ export class Place {
                 public dateTo: Date,
                 public userId: string,
                 public address?: string,
-                public lat?: string,
-                public lng?: string,
+                public lat?: number,
+                public lng?: number,
     ) {}
 }
 
@@ -22,6 +22,6 @@ export interface PlaceData{
     dateFrom: string,
     dateTo: string,
     address?: string,
-    lat?: string,
-    lng?: string,
+    lat?: number,
+    lng?: number,
 }

@@ -71,8 +71,8 @@ export class PlacesService {
             );
   }
 
-  updatePlace(id: string, title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date){
-      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo, null, null, null);
+  updatePlace(id: string, title: string, description: string, guestNumber: number, dateFrom: Date, dateTo: Date, address: string, lat: number, lng: number){
+      const newPlace = this.createPlace(title, description, guestNumber, dateFrom, dateTo, address, lat, lng);
 
       return this.update(newPlace, id)
           .pipe(
@@ -147,9 +147,9 @@ export class PlacesService {
                               +response.price,
                               new Date( response.dateFrom ),
                               new Date( response.dateTo ),
-                              null,
-                              null,
-                              null,
+                              response.address,
+                              +response.lat,
+                              +response.lng,
                               id,
                               response.imageUrl,
                               response.userId
@@ -224,8 +224,8 @@ export class PlacesService {
           dateTo,
           userId || this.authService.userId,
           address,
-          lat.toString(),
-          lng.toString()
+          lat,
+          lng
       );
   }
     private post(newPlace: Place){

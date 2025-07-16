@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {FormGroup} from "@angular/forms";
-import {catchError, delay, throwError} from "rxjs";
+import {catchError, delay, Subject, takeUntil, throwError} from "rxjs";
 
 import {AlertController, NavController} from "@ionic/angular";
 
 import {PlacesService} from "../../../../services/places/places.service";
 import {Place} from "../../../../models/place.model";
+import { PlaceLocation } from 'src/app/models/location.model';
 
 @Component({
   selector: 'app-edit-offer',
@@ -14,8 +15,10 @@ import {Place} from "../../../../models/place.model";
   styleUrls: ['./edit-offer.page.scss'],
   standalone: false
 })
-export class EditOfferPage implements OnInit {
+export class EditOfferPage implements OnInit, OnDestroy {
+  destroyed$ = new Subject();
   place: Place;
+  location: PlaceLocation;
   form: FormGroup;
   isLoading = false;
   isChangePage = false;
@@ -59,11 +62,21 @@ export class EditOfferPage implements OnInit {
           .subscribe(place => {
             this.place = place;
 
+            this.location = {
+              address: place.address,
+              lat: place.lat,
+              lng: place.lng
+            };
+
             this.placesService.patchFormValues(this.form, this.place);
 
             this.isLoading = false;
           });
     });
+
+    this.placesService.location
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(location => this.location = location);
   }
 
   onEditOffer(){
@@ -79,13 +92,21 @@ export class EditOfferPage implements OnInit {
             this.form.value.description,
             +this.form.value.price,
             new Date(this.form.value.dateFrom),
-            new Date(this.form.value.dateTo)  ,
+            new Date(this.form.value.dateTo),
+            this.location.address,
+            this.location.lat,
+            this.location.lng
         )
         .subscribe(place => {
           console.log('update finished');
           this.isLoading = false;
           this.isChangePage = true;
         })
+  }
+
+  ngOnDestroy() {
+    this.destroyed$.next(null);
+    this.destroyed$.complete();
   }
 
 }

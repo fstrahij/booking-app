@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {FormGroup} from "@angular/forms";
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 
 import {PlacesService} from "../../../../services/places/places.service";
 import { PlaceLocation } from 'src/app/models/location.model';
@@ -24,9 +24,13 @@ export class NewOfferPage implements OnInit, OnDestroy  {
   ngOnInit() {
     this.form = this.placesService.getForm();
 
-    this.placesService.location
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(location => this.pickedLocation = location);
+    this.placesService.addPickedLocation(null)
+        .pipe(take(1))
+        .subscribe(()=> {
+          this.placesService.location
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(location => this.pickedLocation = location);
+        });
   }
 
   onCreateOffer(){

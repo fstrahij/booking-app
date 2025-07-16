@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, input, Input, OnInit } from '@angular/core';
 import {ModalController} from "@ionic/angular";
 
 import {MapModalComponent} from "../map-modal/map-modal.component";
@@ -13,14 +13,20 @@ import { PlaceLocation } from 'src/app/models/location.model';
 })
 export class LocationPickerComponent  implements OnInit {
   @Input() location?: PlaceLocation;  
+  @Input() btnText?: string = 'Select Location';
 
   isLoading = false;
+  address;
 
   constructor(private modalCtrl: ModalController,
               private placesService: PlacesService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if(this.location?.address){
+      this.address = this.location?.address;
+    }
+  }
 
   onSelectLocation(){
     this.modalCtrl.create({
@@ -33,10 +39,12 @@ export class LocationPickerComponent  implements OnInit {
           modalEl.onDidDismiss()
               .then(data => { 
                   this.isLoading = true;
-                  if(!data?.data?.location) {
+                  if(!data?.data?.location?.address) {
                       this.isLoading = false;
                       return;
                   }
+
+                  this.address = data.data.location.address;
 
                   this.placesService.addPickedLocation(data.data.location)
                     .subscribe(() => this.isLoading = false);

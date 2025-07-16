@@ -2,7 +2,7 @@
   <ion-toolbar>
      <ion-buttons slot="start">
          <ion-back-button
-                 [defaultHref]="'/places/tabs/offers/' + placeId"
+                 defaultHref="/places/tabs/offers"
                  [disabled]="isLoading"
          ></ion-back-button>
      </ion-buttons>
@@ -36,5 +36,9 @@
                 [isChangePage]="isChangePage"
                 [message]="message"
         ></app-offer-form>
+        <app-location-picker 
+                [location]="location"
+                btnText="Change Location"
+        ></app-location-picker>
     </ng-template>
 </ion-content>
