@@ -43,8 +43,8 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     const initialState = { 
-      lng: this.location?.lng || 15.644, 
-      lat: this.location?.lat || 46.200, 
+      lng: this.location?.lng || 15.9772795, 
+      lat: this.location?.lat || 45.8130967, 
       zoom: 14, 
       controlPos: 'top-right' 
     };
