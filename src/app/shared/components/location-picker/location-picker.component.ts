@@ -1,13 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {ModalController} from "@ionic/angular";
-import {HttpClient} from "@angular/common/http";
-import {map} from "rxjs";
 
 import {MapModalComponent} from "../map-modal/map-modal.component";
-import {environment} from "../../../../environments/environment";
-import {MapResponse} from "../../../models/map.model";
-import {PlaceLocation} from "../../../models/location.model";
 import { PlacesService } from 'src/app/services/places/places.service';
+import { PlaceLocation } from 'src/app/models/location.model';
 
 @Component({
   selector: 'app-location-picker',
@@ -16,10 +12,11 @@ import { PlacesService } from 'src/app/services/places/places.service';
   standalone: false
 })
 export class LocationPickerComponent  implements OnInit {
+  @Input() location?: PlaceLocation;  
+
   isLoading = false;
 
   constructor(private modalCtrl: ModalController,
-              private http: HttpClient,
               private placesService: PlacesService
   ) { }
 
@@ -28,6 +25,9 @@ export class LocationPickerComponent  implements OnInit {
   onSelectLocation(){
     this.modalCtrl.create({
       component: MapModalComponent,
+      componentProps: {
+        location: this.location
+      }
     }).then(
         modalEl => {
           modalEl.onDidDismiss()

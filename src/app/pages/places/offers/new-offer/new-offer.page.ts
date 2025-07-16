@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {FormGroup} from "@angular/forms";
+import { Subject, takeUntil } from 'rxjs';
 
 import {PlacesService} from "../../../../services/places/places.service";
 import { PlaceLocation } from 'src/app/models/location.model';
@@ -10,7 +11,8 @@ import { PlaceLocation } from 'src/app/models/location.model';
   styleUrls: ['./new-offer.page.scss'],
   standalone: false
 })
-export class NewOfferPage implements OnInit {
+export class NewOfferPage implements OnInit, OnDestroy  {
+  destroyed$ = new Subject();
   form: FormGroup;
   isLoading = false;
   message: string = 'Loading...';
@@ -23,6 +25,7 @@ export class NewOfferPage implements OnInit {
     this.form = this.placesService.getForm();
 
     this.placesService.location
+      .pipe(takeUntil(this.destroyed$))
       .subscribe(location => this.pickedLocation = location);
   }
 
@@ -45,5 +48,10 @@ export class NewOfferPage implements OnInit {
       this.isLoading = false;
       this.isChangePage = true;
     });
+  }
+
+  ngOnDestroy(){
+    this.destroyed$.next(null);
+    this.destroyed$.complete();
   }
 }

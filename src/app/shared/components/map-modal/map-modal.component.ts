@@ -7,12 +7,12 @@ import {
   ViewChild
 } from '@angular/core';
 import {LoadingController, ModalController} from "@ionic/angular";
+import { catchError } from 'rxjs';
 
 import {GeolocateControl, Map, Marker, NavigationControl} from "maplibre-gl";
 import {PlacesService} from "../../../services/places/places.service";
 import {environment} from "../../../../environments/environment";
 import { PlaceLocation } from 'src/app/models/location.model';
-import { catchError } from 'rxjs';
 
 
 @Component({
@@ -38,10 +38,16 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
             ) { }
 
   ngOnInit() {
+    console.log('selected location', this.location);
   }
 
   ngAfterViewInit() {
-    const initialState = { lng: 15.644, lat: 46.200, zoom: 14, controlPos: 'top-right' };
+    const initialState = { 
+      lng: this.location?.lng || 15.644, 
+      lat: this.location?.lat || 46.200, 
+      zoom: 14, 
+      controlPos: 'top-right' 
+    };
 
     this.map = this.getMap(initialState);
 
