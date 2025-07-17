@@ -25,6 +25,9 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('map')
   private mapContainer!: ElementRef<HTMLElement>;
 
+  @ViewChild('searchInput', {read: ElementRef})
+  private searchInput!: ElementRef;
+
   map: Map;
   marker: Marker = new Marker({
     color: "#FF0000",
@@ -71,25 +74,7 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
   onSearch(address: string) {
     if(address.trim().length <= 0) return;
 
-    this.loadingCtrl
-          .create({
-            keyboardClose: true,
-            message: 'Loading...'
-          })
-          .then(loading =>  {
-            loading.present();
-
-            this.placesService.fetchSearchLocation(address)
-                .pipe( catchError( () => this.loadingCtrl?.dismiss() ) )  
-                .subscribe((response: PlaceLocation)=>{
-                  if(!response || !response?.address || !response?.lat?.toString() || !response?.lng?.toString()) return;
-
-                  this.setMarker({lng: response.lng, lat: response.lat});
-                  this.map.setCenter([response.lng, response.lat]);
-                  this.location = {...response};
-                  this.loadingCtrl?.dismiss();
-                })
-          });
+    this.loadLocation(address);
   }
 
   private getMap(initialState){
@@ -124,11 +109,36 @@ export class MapModalComponent  implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onMapClick(e: any){
-    console.log(e);
-    const location = {lng: e.lngLat.lng, lat: e.lngLat.lat};
-    this.marker.setLngLat([location.lng, location.lat]);
+    if(!e?.lngLat?.lat || !e?.lngLat?.lng) return;
 
-    this.modalCtrl.dismiss({data: location});
+    this.loadLocation(null, e.lngLat.lng, e.lngLat.lat);
+  }
+
+  private loadLocation(address?: string, lng?: number, lat?: number){
+    this.loadingCtrl
+          .create({
+            keyboardClose: true,
+            message: 'Loading...'
+          })
+          .then(loading =>  {
+            loading.present();
+
+            this.getApi(address, lng, lat)
+                .pipe( catchError( () => this.loadingCtrl?.dismiss() ) )  
+                .subscribe((response: PlaceLocation)=>{
+                  if(!response || !response?.address || !response?.lat?.toString() || !response?.lng?.toString()) return;
+
+                  this.setMarker({lng: response.lng, lat: response.lat});
+                  this.map.setCenter([response.lng, response.lat]);
+                  this.location = {...response};
+                  this.searchInput.nativeElement.value= this.location.address;
+                  this.loadingCtrl?.dismiss();
+                })
+          });
+  }
+
+  private getApi(address?: string, lng?: number, lat?: number){
+    return address ? this.placesService.fetchSearchLocation(address) : this.placesService.fetchAddress(lat, lng);
   }
 
   ngOnDestroy() {

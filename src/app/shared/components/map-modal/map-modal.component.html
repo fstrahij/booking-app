@@ -2,7 +2,7 @@
     <ion-toolbar>
         <ion-title>Pick Location</ion-title>
         <ion-buttons slot="primary">
-            <ion-button (click)="onCancel()">Cancel</ion-button>
+            <ion-button (click)="onCancel()">close</ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -16,11 +16,11 @@
                                name="search-address"
                                placeholder="Search"
                                [clearInput]="true"
-                               #search
+                               #searchInput
                     >
                     </ion-input>
                     <ion-button
-                            (click)="onSearch(search.value.toString())"
+                            (click)="onSearch(searchInput.value.toString())"
                             fill="clear"
                             slot="start"
                             size="default"

@@ -181,6 +181,24 @@ export class PlacesService {
             );
   }
 
+  fetchAddress(lat: number, lng: number){
+      return this.http.get<PlaceLocationResponse>(`${environment.api.geocode}/reverse?format=jsonv2&extratags=1&lat=${lat}&lon=${lng}`)
+          .pipe(
+              map(response => {
+                  for(const key in response){
+                        if(response.hasOwnProperty(key)){
+                            return {
+                                address: response.display_name,
+                                lat: +response.lat,
+                                lng: +response.lon
+                            };
+                        }
+                    }
+                    throw new Error('Search location not found');
+              }),
+          )
+  }
+
   getForm(){
       return new FormGroup({
           title: new FormControl(null, Validators.required),

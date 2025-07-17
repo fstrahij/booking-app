@@ -13,7 +13,6 @@ import { PlaceLocation } from 'src/app/models/location.model';
 })
 export class LocationPickerComponent  implements OnInit {
   @Input() location?: PlaceLocation;  
-  @Input() btnText?: string = 'Select Location';
 
   isLoading = false;
   address;
@@ -52,5 +51,9 @@ export class LocationPickerComponent  implements OnInit {
 
           modalEl.present();
     });
+  }
+
+  getBtnText(){
+    return this.location?.address ? 'Change Location' : 'Select Location';
   }
 }
