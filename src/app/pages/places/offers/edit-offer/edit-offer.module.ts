@@ -10,6 +10,7 @@ import { EditOfferPage } from './edit-offer.page';
 import {OfferFormComponent} from "../../../../shared/components/offer-form/offer-form.component";
 import {LocationPickerComponent} from "../../../../shared/components/location-picker/location-picker.component";
 import { ClusterPointDirective } from "@maplibre/ngx-maplibre-gl";
+import { ImagePickerComponent } from 'src/app/shared/components/image-picker/image-picker.component';
 
 @NgModule({
     imports: [
@@ -21,12 +22,14 @@ import { ClusterPointDirective } from "@maplibre/ngx-maplibre-gl";
 ],
     exports: [
         OfferFormComponent,
-        LocationPickerComponent
+        LocationPickerComponent,
+        ImagePickerComponent
     ],
     declarations: [
         EditOfferPage, 
         OfferFormComponent, 
-        LocationPickerComponent
+        LocationPickerComponent,
+        ImagePickerComponent
     ]
 })
 export class EditOfferPageModule {}

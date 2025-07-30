@@ -33,6 +33,10 @@ export class NewOfferPage implements OnInit, OnDestroy  {
         });
   }
 
+  onImagePick(imageData: string){
+
+  }
+
   onCreateOffer(){
     if(this.form.invalid) return;
 

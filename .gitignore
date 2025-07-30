@@ -142,3 +142,7 @@ src/environments/
 # web storm
 .idea/*
 .DS_Store
+
+android/*
+ios/*
+www/*

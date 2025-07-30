@@ -40,5 +40,8 @@
         <app-location-picker 
                 [location]="pickedLocation"
         ></app-location-picker>
+        <app-image-picker
+                (imagePick)="onImagePick($event)"
+        ></app-image-picker>
     </ng-template>    
 </ion-content>
